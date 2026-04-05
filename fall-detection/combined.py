@@ -47,8 +47,8 @@ _ann_frame: Optional[np.ndarray] = None
 # ---------------------------------------------------------------------------
 # MJPEG server (Flask)
 # ---------------------------------------------------------------------------
-MJPEG_TARGET_W = 640
-MJPEG_TARGET_H = 360
+MJPEG_TARGET_W = 1280
+MJPEG_TARGET_H = 720
 MJPEG_FPS = 10
 MJPEG_QUALITY = 55
 
@@ -148,7 +148,7 @@ def _draw_hud(frame, state, debug, w, h):
 def run(
     source: int = 0,
     flask_port: int = 8000,
-    immobility_confirm_seconds: float = 5.0,
+    immobility_confirm_seconds: float = 2.0,
     fps_override: Optional[float] = None,
     patient: Optional[Dict[str, Any]] = None,
     monitoring: Optional[Dict[str, Any]] = None,
@@ -219,6 +219,8 @@ def run(
                 velocity    = compute_landmark_velocity(prev_pts, pts, h, w)
 
                 state = detector.update(torso_angle, hip_y, velocity, timestamp)
+                if state != last_state:
+                    print(f"[{time.strftime('%H:%M:%S')}] State → {state.value}")
 
                 # Fall transition → fire alert
                 if last_state != FallState.CONFIRMED_FALL and state == FallState.CONFIRMED_FALL:
