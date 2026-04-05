@@ -47,8 +47,8 @@ _ann_frame: Optional[np.ndarray] = None
 # ---------------------------------------------------------------------------
 # MJPEG server (Flask)
 # ---------------------------------------------------------------------------
-MJPEG_TARGET_W = 1280
-MJPEG_TARGET_H = 720
+MJPEG_TARGET_W = 640
+MJPEG_TARGET_H = 360
 MJPEG_FPS = 10
 MJPEG_QUALITY = 55
 
@@ -148,7 +148,7 @@ def _draw_hud(frame, state, debug, w, h):
 def run(
     source: int = 0,
     flask_port: int = 8000,
-    immobility_confirm_seconds: float = 2.0,
+    immobility_confirm_seconds: float = 5.0,
     fps_override: Optional[float] = None,
     patient: Optional[Dict[str, Any]] = None,
     monitoring: Optional[Dict[str, Any]] = None,
@@ -219,8 +219,6 @@ def run(
                 velocity    = compute_landmark_velocity(prev_pts, pts, h, w)
 
                 state = detector.update(torso_angle, hip_y, velocity, timestamp)
-                if state != last_state:
-                    print(f"[{time.strftime('%H:%M:%S')}] State → {state.value}")
 
                 # Fall transition → fire alert
                 if last_state != FallState.CONFIRMED_FALL and state == FallState.CONFIRMED_FALL:
@@ -271,6 +269,23 @@ def run(
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
+def fetch_patient(nextjs_url: str):
+    """Fetch the first registered patient from Next.js at startup."""
+    try:
+        r = requests.get(f"{nextjs_url}/api/patients", timeout=5)
+        patients = r.json()
+        if patients:
+            p = patients[0]
+            patient = {"id": p["id"], "name": p["name"]}
+            monitoring = {"location": p["location"], "cameraNumber": p["cameraNumber"]}
+            print(f"Loaded patient: {patient['name']} — {monitoring['location']} cam {monitoring['cameraNumber']}")
+            return patient, monitoring
+    except Exception as e:
+        print(f"Could not fetch patient from Next.js: {e}")
+    print("Warning: using default patient info")
+    return None, None
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", default="0", help="Camera index (default 0)")
@@ -281,6 +296,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     source = int(args.source) if args.source.isdigit() else args.source
+
+    # Fetch patient info from Next.js so it matches what was registered
+    patient, monitoring = (None, None)
+    if args.nextjs_url:
+        patient, monitoring = fetch_patient(args.nextjs_url)
 
     def post_fall(payload: Dict[str, Any]):
         if not args.nextjs_url:
@@ -302,4 +322,6 @@ if __name__ == "__main__":
         immobility_confirm_seconds=args.immobility_seconds,
         on_fall=post_fall,
         show_gui=args.gui,
+        patient=patient,
+        monitoring=monitoring,
     )
