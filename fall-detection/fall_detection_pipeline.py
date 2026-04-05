@@ -22,12 +22,14 @@ def _build_fall_payload(
     *,
     patient: Dict[str, Any],
     monitoring: Dict[str, Any],
+    image_b64: Optional[str] = None, 
 ) -> Dict[str, Any]:
 
     return {
         "timestamp": _iso_now(),
         "patient": patient,         # e.g. {"id": "...", "name": "..."}
         "monitoring": monitoring,   # e.g. {"location": "living room", "cameraNumber": 3}
+        "image": image_b64,
     }
 
 def run(
@@ -87,15 +89,30 @@ def run(
                 state = detector.update(torso_angle, hip_y, velocity, timestamp)
                 # After: state = detector.update(...)
                 if last_state != FallState.CONFIRMED_FALL and state == FallState.CONFIRMED_FALL:
+                    
+                    # Encode the current frame as a base64 JPEG
+                    image_b64 = None
+                    ret_enc, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+                    if ret_enc:
+                        import base64
+                        image_b64 = base64.b64encode(buf).decode("utf-8")
+                     
                     payload = _build_fall_payload(
                         patient=patient,
                         monitoring=monitoring,
+                        image_b64=image_b64,  
                     )
                     if on_fall:
                         on_fall(payload)
                     else:
                         # default behavior for now
-                        print("FALL_PAYLOAD:", payload)
+                        print("FALL_PAYLOAD:", {**payload, "image": "<captured>"})
+                        
+                        if image_b64:
+                            import base64
+                            with open("fall_capture.jpg", "wb") as f:
+                                f.write(base64.b64decode(image_b64))
+                            print("Image saved to fall_capture.jpg")
 
                 last_state = state
 
