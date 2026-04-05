@@ -1,6 +1,6 @@
 export async function notifyOpenClaw(message: string): Promise<void> {
   const webhookUrl = process.env.OPENCLAW_WEBHOOK_URL;
-  const token = process.env.OPENCLAW_HOOKS_TOKEN;
+  const token = process.env.OPENCLAW_WEBHOOK_TOKEN;
 
   if (!webhookUrl) {
     console.log("[OpenClaw dev mode] Would send:", message);
@@ -17,7 +17,13 @@ export async function notifyOpenClaw(message: string): Promise<void> {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ message, name: "FallAlert", deliver: true }),
+      body: JSON.stringify({
+        message,
+        name: "FallAlert",
+        deliver: true,
+        channel: "telegram",
+        to: process.env.TELEGRAM_CHAT_ID,
+      }),
       signal: controller.signal,
     });
 
