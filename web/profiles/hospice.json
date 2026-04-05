@@ -1,0 +1,19 @@
+{
+  "name": "hospice",
+  "displayName": "Hospice Care",
+  "location": "Room 3 — Patient Bed",
+  "contacts": {
+    "primary": {
+      "name": "On-Duty Caregiver",
+      "whatsapp": "+1234567890"
+    },
+    "escalation": {
+      "name": "Family Member",
+      "email": "family@example.com"
+    }
+  },
+  "thresholds": {
+    "escalation_timeout_seconds": 60,
+    "fall_confirmation_seconds": 3
+  }
+}

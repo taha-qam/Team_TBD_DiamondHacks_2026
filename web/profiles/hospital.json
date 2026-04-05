@@ -1,0 +1,19 @@
+{
+  "name": "hospital",
+  "displayName": "Hospital — ER",
+  "location": "ER Waiting Room",
+  "contacts": {
+    "primary": {
+      "name": "Nurse Station",
+      "whatsapp": "+1234567890"
+    },
+    "escalation": {
+      "name": "Dr. Smith",
+      "email": "dr.smith@hospital.org"
+    }
+  },
+  "thresholds": {
+    "escalation_timeout_seconds": 60,
+    "fall_confirmation_seconds": 3
+  }
+}
