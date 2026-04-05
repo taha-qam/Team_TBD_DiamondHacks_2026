@@ -1,3 +1,6 @@
 /web_app/carewatch/node_modules
 node_modules/
 /web_app/carewatch/.next
+/web_app/carewatch/.env
+__pycache__/
+*.py[cod]
