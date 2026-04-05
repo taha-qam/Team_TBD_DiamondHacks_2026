@@ -1,6 +1,6 @@
 export async function notifyOpenClaw(message: string): Promise<void> {
   const webhookUrl = process.env.OPENCLAW_WEBHOOK_URL;
-  const token = process.env.OPENCLAW_GATEWAY_TOKEN;
+  const token = process.env.OPENCLAW_HOOKS_TOKEN;
 
   if (!webhookUrl) {
     console.log("[OpenClaw dev mode] Would send:", message);
