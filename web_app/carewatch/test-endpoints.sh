@@ -1,32 +1,38 @@
 #!/bin/bash
 
-# FallGuard endpoint testing script
+# CareWatch endpoint testing script
+# Start `npm run dev` first, then run this in another terminal
 # Usage: ./test-endpoints.sh
 
 BASE="http://localhost:3000"
 
-echo "=== 1. Test alert store ==="
-curl -s "$BASE/api/test-store" | python3 -m json.tool
-echo ""
-
-echo "=== 2. Test OpenClaw webhook ==="
+echo "=== 1. Test OpenClaw webhook ==="
+echo "Sending test alert to OpenClaw → Telegram..."
 curl -s "$BASE/api/test-openclaw" | python3 -m json.tool
 echo ""
 
-echo "=== 3. Simulate a fall detection (POST /api/fall-detected) ==="
-curl -s -X POST "$BASE/api/fall-detected" \
+echo "=== 2. List patients ==="
+curl -s "$BASE/api/patients" | python3 -m json.tool
+echo ""
+
+echo "=== 3. List current alerts ==="
+curl -s "$BASE/api/fall" | python3 -m json.tool
+echo ""
+
+echo "=== 4. Simulate fall detection (POST /api/fall) ==="
+curl -s -X POST "$BASE/api/fall" \
   -H "Content-Type: application/json" \
-  -H "X-Camera-Secret: fallguard-dev-secret" \
-  -d '{"cameraId":"cam-01","cameraLabel":"Living Room Camera","patientName":"Taha","imagePath":"/fall-images/fall-123.jpg"}' \
-  | python3 -m json.tool
+  -d '{
+    "timestamp": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'",
+    "patient": {"id": "patient-1", "name": "Taha"},
+    "monitoring": {"location": "Living Room", "cameraNumber": 1},
+    "imagePath": "/fall-images/fall-test.jpg"
+  }' | python3 -m json.tool
 echo ""
 
-echo "=== 4. List all alerts ==="
-curl -s "$BASE/api/alerts" | python3 -m json.tool
-echo ""
-
-echo "=== 5. Get deployment profile ==="
-curl -s "$BASE/api/config" | python3 -m json.tool
+echo "=== 5. Verify alert was stored ==="
+curl -s "$BASE/api/fall" | python3 -m json.tool
 echo ""
 
 echo "=== Done ==="
+echo "Check Telegram for the OpenClaw test message from step 1."
