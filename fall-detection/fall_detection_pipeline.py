@@ -212,77 +212,76 @@ def run(
                     print("No frame received; exiting.")
                     break
 
-            h, w = frame.shape[:2]
-            timestamp = time.time() - start_time
+                h, w = frame.shape[:2]
+                timestamp = time.time() - start_time
 
-            # MediaPipe expects RGB
-            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            results = pose.process(rgb)
+                # MediaPipe expects RGB
+                rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                results = pose.process(rgb)
 
-            state = FallState.NORMAL
-            debug = {}
+                state = FallState.NORMAL
+                debug = {}
 
-            if results.pose_landmarks:
-                lm = results.pose_landmarks.landmark
-                pts = get_keypoints(lm, h, w)
+                if results.pose_landmarks:
+                    lm = results.pose_landmarks.landmark
+                    pts = get_keypoints(lm, h, w)
 
-                torso_angle   = compute_torso_angle(pts)
-                hip_y         = compute_vertical_position(pts, h)
-                velocity      = compute_landmark_velocity(prev_pts, pts, h, w)
+                    torso_angle   = compute_torso_angle(pts)
+                    hip_y         = compute_vertical_position(pts, h)
+                    velocity      = compute_landmark_velocity(prev_pts, pts, h, w)
 
-                state = detector.update(torso_angle, hip_y, velocity, timestamp)
-                # After: state = detector.update(...)
-                if last_state != FallState.CONFIRMED_FALL and state == FallState.CONFIRMED_FALL:
-                    
-                    # Encode the current frame as a base64 JPEG
-                    image_b64 = None
-                    ret_enc, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
-                    if ret_enc:
-                        import base64
-                        image_b64 = base64.b64encode(buf).decode("utf-8")
-                     
-                    payload = _build_fall_payload(
-                        patient=patient,
-                        monitoring=monitoring,
-                        image_b64=image_b64,  
-                    )
-                    if on_fall:
-                        on_fall(payload)
-                    else:
-                        # default behavior for now
-                        print("FALL_PAYLOAD:", {**payload, "image": "<captured>"})
-                        
-                        if image_b64:
+                    state = detector.update(torso_angle, hip_y, velocity, timestamp)
+                    # After: state = detector.update(...)
+                    if last_state != FallState.CONFIRMED_FALL and state == FallState.CONFIRMED_FALL:
+                        # Encode the current frame as a base64 JPEG
+                        image_b64 = None
+                        ret_enc, buf = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+                        if ret_enc:
                             import base64
-                            with open("fall_capture.jpg", "wb") as f:
-                                f.write(base64.b64decode(image_b64))
-                            print("Image saved to fall_capture.jpg")
+                            image_b64 = base64.b64encode(buf).decode("utf-8")
 
-                last_state = state
+                        payload = _build_fall_payload(
+                            patient=patient,
+                            monitoring=monitoring,
+                            image_b64=image_b64,
+                        )
+                        if on_fall:
+                            on_fall(payload)
+                        else:
+                            # default behavior for now
+                            print("FALL_PAYLOAD:", {**payload, "image": "<captured>"})
 
-                debug = detector.get_debug_info()
-                debug["torso_angle"] = torso_angle
-                debug["velocity"] = velocity
+                            if image_b64:
+                                import base64
+                                with open("fall_capture.jpg", "wb") as f:
+                                    f.write(base64.b64decode(image_b64))
+                                print("Image saved to fall_capture.jpg")
 
-                prev_pts = pts
+                    last_state = state
 
-                # Draw skeleton
-                color = STATE_COLORS[state]
-                mp_draw.draw_landmarks(
-                    frame,
-                    results.pose_landmarks,
-                    mp_pose.POSE_CONNECTIONS,
-                    mp_draw.DrawingSpec(color=color, thickness=2, circle_radius=3),
-                    mp_draw.DrawingSpec(color=color, thickness=2),
-                )
+                    debug = detector.get_debug_info()
+                    debug["torso_angle"] = torso_angle
+                    debug["velocity"] = velocity
 
-            # --- HUD overlay ---
-            _draw_hud(frame, state, debug, w, h)
+                    prev_pts = pts
 
-            if show_gui:
-                cv2.imshow("Fall Detection", frame)
-                if cv2.waitKey(1) & 0xFF == ord("q"):
-                    break
+                    # Draw skeleton
+                    color = STATE_COLORS[state]
+                    mp_draw.draw_landmarks(
+                        frame,
+                        results.pose_landmarks,
+                        mp_pose.POSE_CONNECTIONS,
+                        mp_draw.DrawingSpec(color=color, thickness=2, circle_radius=3),
+                        mp_draw.DrawingSpec(color=color, thickness=2),
+                    )
+
+                # --- HUD overlay ---
+                _draw_hud(frame, state, debug, w, h)
+
+                if show_gui:
+                    cv2.imshow("Fall Detection", frame)
+                    if cv2.waitKey(1) & 0xFF == ord("q"):
+                        break
 
     if cap is not None:
         cap.release()
