@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": "alert-1775386395400",
+    "receivedAt": "2026-04-05T10:53:15.400Z",
+    "timestamp": "2026-04-05T10:53:15Z",
+    "patient": {
+      "id": "patient-1",
+      "name": "Taha"
+    },
+    "monitoring": {
+      "location": "Living Room",
+      "cameraNumber": 1
+    },
+    "imagePath": "/fall-images/fall-test.jpg"
+  }
+]
