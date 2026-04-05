@@ -2,6 +2,8 @@ import cv2
 import mediapipe as mp
 import time
 import numpy as np
+from datetime import datetime, timezone
+from typing import Callable, Optional, Dict, Any
 
 from features import get_keypoints, compute_torso_angle, compute_vertical_position, compute_landmark_velocity
 from fall_detector import FallDetector, FallState
@@ -13,7 +15,32 @@ STATE_COLORS = {
     FallState.CONFIRMED_FALL:(0, 0, 255),    # Red
 }
 
-def run(source=0, immobility_confirm_seconds=5.0, fps_override=None):
+def _iso_now() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+def _build_fall_payload(
+    *,
+    patient: Dict[str, Any],
+    monitoring: Dict[str, Any],
+) -> Dict[str, Any]:
+
+    return {
+        "timestamp": _iso_now(),
+        "patient": patient,         # e.g. {"id": "...", "name": "..."}
+        "monitoring": monitoring,   # e.g. {"location": "living room", "cameraNumber": 3}
+    }
+
+def run(
+    source=0,
+    immobility_confirm_seconds=5.0,
+    fps_override=None,
+    patient: Optional[Dict[str, Any]] = None,
+    monitoring: Optional[Dict[str, Any]] = None,
+    on_fall: Optional[Callable[[Dict[str, Any]], None]] = None,
+):
+    patient = patient or {"id": "patient-001", "name": "Evelyn Carter"}
+    monitoring = monitoring or {"location": "living room", "cameraNumber": 3}
+    last_state = FallState.NORMAL
     mp_pose = mp.solutions.pose
     mp_draw = mp.solutions.drawing_utils
 
@@ -58,6 +85,20 @@ def run(source=0, immobility_confirm_seconds=5.0, fps_override=None):
                 velocity      = compute_landmark_velocity(prev_pts, pts, h, w)
 
                 state = detector.update(torso_angle, hip_y, velocity, timestamp)
+                # After: state = detector.update(...)
+                if last_state != FallState.CONFIRMED_FALL and state == FallState.CONFIRMED_FALL:
+                    payload = _build_fall_payload(
+                        patient=patient,
+                        monitoring=monitoring,
+                    )
+                    if on_fall:
+                        on_fall(payload)
+                    else:
+                        # default behavior for now
+                        print("FALL_PAYLOAD:", payload)
+
+                last_state = state
+
                 debug = detector.get_debug_info()
                 debug["torso_angle"] = torso_angle
                 debug["velocity"] = velocity
