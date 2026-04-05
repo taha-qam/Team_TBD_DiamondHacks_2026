@@ -1,0 +1,13 @@
+{
+  "name": "hospital",
+  "displayName": "Hospital — ER",
+  "location": "ER Waiting Room",
+  "contacts": {
+    "primary": { "name": "Nurse Station", "role": "nurse-on-duty" },
+    "escalation": { "name": "Dr. Smith", "role": "family" }
+  },
+  "thresholds": {
+    "cooldown_seconds": 10,
+    "fall_confirmation_seconds": 3
+  }
+}

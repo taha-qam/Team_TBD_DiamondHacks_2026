@@ -1,0 +1,13 @@
+{
+  "name": "hospice",
+  "displayName": "Hospice Care",
+  "location": "Room 3 — Patient Bed",
+  "contacts": {
+    "primary": { "name": "On-Duty Caregiver", "role": "nurse-on-duty" },
+    "escalation": { "name": "Family Member", "role": "family" }
+  },
+  "thresholds": {
+    "cooldown_seconds": 10,
+    "fall_confirmation_seconds": 3
+  }
+}

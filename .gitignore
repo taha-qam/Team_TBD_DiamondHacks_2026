@@ -4,3 +4,8 @@ node_modules/
 /web_app/carewatch/.env
 __pycache__/
 *.py[cod]
+*.pyc
+*.jpg
+*.jpeg
+*.png
+.env.local

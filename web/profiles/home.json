@@ -1,0 +1,13 @@
+{
+  "name": "home",
+  "displayName": "Home Care",
+  "location": "Living Room",
+  "contacts": {
+    "primary": { "name": "Family Member", "role": "family" },
+    "escalation": { "name": "Emergency Contact", "role": "family" }
+  },
+  "thresholds": {
+    "cooldown_seconds": 10,
+    "fall_confirmation_seconds": 5
+  }
+}
