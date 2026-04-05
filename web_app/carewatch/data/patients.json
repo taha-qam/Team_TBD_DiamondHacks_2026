@@ -1,0 +1,16 @@
+[
+  {
+    "id": "patient-001",
+    "name": "Evelyn Carter",
+    "dob": "1942-03-15",
+    "gender": "Female",
+    "contacts": [
+      { "name": "James Carter", "contact": "+1 (619) 555-0142" },
+      { "name": "Rosa Mendez", "contact": "@rosamendez_tg" }
+    ],
+    "location": "Living room",
+    "cameraLabel": "Main cam",
+    "cameraNumber": 1,
+    "active": true
+  }
+]
