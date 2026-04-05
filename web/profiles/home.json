@@ -1,0 +1,19 @@
+{
+  "name": "home",
+  "displayName": "Home Care",
+  "location": "Living Room",
+  "contacts": {
+    "primary": {
+      "name": "Family Member",
+      "whatsapp": "+1234567890"
+    },
+    "escalation": {
+      "name": "Emergency Contact",
+      "email": "emergency@example.com"
+    }
+  },
+  "thresholds": {
+    "escalation_timeout_seconds": 90,
+    "fall_confirmation_seconds": 5
+  }
+}
