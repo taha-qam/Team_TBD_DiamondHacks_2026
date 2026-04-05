@@ -16,7 +16,7 @@ interface Alert {
   image?: string
 }
 
-const STREAM_URL = process.env.NEXT_PUBLIC_STREAM_URL || 'http://localhost:8080'
+
 
 function initials(name: string) {
   return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
@@ -119,7 +119,7 @@ export default function Dashboard() {
                         </div>
                         <div style={{ position: 'relative', aspectRatio: '16/9', background: '#0a1a12', overflow: 'hidden' }}>
                           <img
-                            src={STREAM_URL}
+                            src={`http://100.104.85.17:8000/mjpeg`}
                             alt="Live feed"
                             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}

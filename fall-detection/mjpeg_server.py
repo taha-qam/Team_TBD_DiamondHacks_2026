@@ -2,7 +2,6 @@ import time
 import cv2
 from flask import Flask, Response
 
-# "Bad school wifi" defaults
 TARGET_W, TARGET_H = 320, 180
 FPS = 5
 JPEG_QUALITY = 50
@@ -42,5 +41,4 @@ def mjpeg():
     return Response(gen(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
 if __name__ == "__main__":
-    # 0.0.0.0 is what makes it reachable over Wi‑Fi (LAN), not just localhost
     app.run(host="0.0.0.0", port=8000, threaded=True)
