@@ -22,7 +22,7 @@ Fall model detects fall
     ↓  POST http://localhost:3000/api/fall-detected (metadata only)
 Next.js API Route
     ↓  constructs local image URL (no file saving needed)
-    ↓  POST http://localhost:18789/hooks
+    ↓  POST http://localhost:18789/hooks/agent
 OpenClaw
     ↓  fetches image from localhost:3000/fall-images/<filename>
     ↓  imageModel (Claude Sonnet) analyzes fall
@@ -57,7 +57,7 @@ Store in `.env.local` — never hardcode:
 
 ```
 OPENCLAW_GATEWAY_TOKEN=97f773a2c30018b69617546875ac1448edc05905d42d8fd3
-OPENCLAW_WEBHOOK_URL=http://localhost:18789/hooks
+OPENCLAW_WEBHOOK_URL=http://localhost:18789/hooks/agent
 BASE_URL=http://localhost:3000
 CAMERA_SECRET=<shared secret between fall model and Next.js>
 ```

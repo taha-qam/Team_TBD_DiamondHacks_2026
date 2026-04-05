@@ -209,7 +209,7 @@ interface TimelineEntry {
 
 Headers: `X-Camera-Secret: <shared secret>`
 
-### Next.js → OpenClaw Payload (POST localhost:18789/hooks)
+### Next.js → OpenClaw Payload (POST localhost:18789/hooks/agent)
 
 ```json
 {
@@ -253,7 +253,7 @@ Note: contact delivery details (phone numbers, channels) are configured in OpenC
 
 ### Next.js → OpenClaw: Webhook
 - **Protocol**: HTTP POST
-- **Endpoint**: `http://localhost:18789/hooks`
+- **Endpoint**: `http://localhost:18789/hooks/agent`
 - **Auth**: `Authorization: Bearer <token>`
 - **When**: New alert is created in the alert store
 - **Timeout**: 5 seconds — if OpenClaw is unreachable, log error but don't block
@@ -317,7 +317,7 @@ Note: contact delivery details (phone numbers, channels) are configured in OpenC
 ```env
 # web/.env.local
 OPENCLAW_GATEWAY_TOKEN=<token>
-OPENCLAW_WEBHOOK_URL=http://localhost:18789/hooks
+OPENCLAW_WEBHOOK_URL=http://localhost:18789/hooks/agent
 BASE_URL=http://localhost:3000
 CAMERA_SECRET=<shared secret between fall model and Next.js>
 ACTIVE_PROFILE=hospital

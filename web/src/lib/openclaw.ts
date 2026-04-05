@@ -17,7 +17,7 @@ export async function notifyOpenClaw(message: string): Promise<void> {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, name: "FallAlert", deliver: true }),
       signal: controller.signal,
     });
 

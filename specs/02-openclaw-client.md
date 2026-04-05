@@ -52,7 +52,7 @@ If `OPENCLAW_WEBHOOK_URL` is not set (empty or undefined):
 
 1. Ensure OpenClaw is running (either locally or on the Rubik device)
 2. Set `OPENCLAW_WEBHOOK_URL` in `.env.local`:
-   - Same machine: `http://localhost:18789/hooks`
+   - Same machine: `http://localhost:18789/hooks/agent`
    - Rubik over network: `http://<RUBIK_IP>:18789/hooks`
 3. Set `OPENCLAW_GATEWAY_TOKEN` in `.env.local`
 4. Create a temporary test route at `web/src/app/api/test-openclaw/route.ts`:
