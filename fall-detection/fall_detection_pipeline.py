@@ -2,6 +2,8 @@ import cv2
 import mediapipe as mp
 import time
 import numpy as np
+import os
+import sys
 from datetime import datetime, timezone
 from typing import Callable, Optional, Dict, Any
 
@@ -32,6 +34,12 @@ def _build_fall_payload(
         "image": image_b64,
     }
 
+
+def _default_show_gui() -> bool:
+    if sys.platform.startswith("linux"):
+        return bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
+    return True
+
 def run(
     source=0,
     immobility_confirm_seconds=5.0,
@@ -39,7 +47,11 @@ def run(
     patient: Optional[Dict[str, Any]] = None,
     monitoring: Optional[Dict[str, Any]] = None,
     on_fall: Optional[Callable[[Dict[str, Any]], None]] = None,
+    show_gui: Optional[bool] = None,
 ):
+    if show_gui is None:
+        show_gui = _default_show_gui()
+
     patient = patient or {"id": "patient-001", "name": "Evelyn Carter"}
     monitoring = monitoring or {"location": "living room", "cameraNumber": 3}
     last_state = FallState.NORMAL
@@ -135,12 +147,14 @@ def run(
             # --- HUD overlay ---
             _draw_hud(frame, state, debug, w, h)
 
-            cv2.imshow("Fall Detection", frame)
-            if cv2.waitKey(1) & 0xFF == ord("q"):
-                break
+            if show_gui:
+                cv2.imshow("Fall Detection", frame)
+                if cv2.waitKey(1) & 0xFF == ord("q"):
+                    break
 
     cap.release()
-    cv2.destroyAllWindows()
+    if show_gui:
+        cv2.destroyAllWindows()
 
 
 def _draw_hud(frame, state, debug, w, h):
@@ -175,11 +189,15 @@ def _draw_hud(frame, state, debug, w, h):
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--source", default=0, help="0=webcam, or path to video file")
+    parser.add_argument("--source", default="0", help="Webcam index (e.g. 0) OR a video path OR an http(s) URL")
     parser.add_argument("--immobility-seconds", type=float, default=5.0)
+    parser.add_argument("--no-gui", action="store_true", help="Disable OpenCV GUI windows (useful on headless Linux/SSH)")
     args = parser.parse_args()
 
+    source = int(args.source) if str(args.source).isdigit() else args.source
+
     run(
-        source=args.source if args.source == "0" else args.source,
+        source=source,
         immobility_confirm_seconds=args.immobility_seconds,
+        show_gui=(False if args.no_gui else None),
     )
