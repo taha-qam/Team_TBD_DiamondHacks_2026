@@ -1,15 +1,8 @@
 export type AlertStatus = "detected" | "escalated" | "acknowledged" | "resolved";
 
-export interface PoseLandmark {
-  x: number;
-  y: number;
-  z: number;
-  visibility: number;
-}
-
 export interface TimelineEntry {
   timestamp: string;
-  event: string;
+  event: string; // "fall_detected" | "openclaw_notified" | "acknowledged" | "resolved"
   detail?: string;
 }
 
@@ -18,22 +11,18 @@ export interface Alert {
   timestamp: string;
   location: string;
   status: AlertStatus;
-  confidence: number;
-  poseLandmarks: PoseLandmark[];
-  metrics: {
-    hip_height: number;
-    torso_angle: number;
-    stillness: number;
-  };
+  cameraId: string;
+  cameraLabel: string;
+  patientName: string;
+  imagePath: string; // e.g., "/fall-images/fall-1712345678.jpg"
   timeline: TimelineEntry[];
   createdAt: string;
   updatedAt: string;
 }
 
-export interface Contact {
+export interface ProfileContact {
   name: string;
-  whatsapp?: string;
-  email?: string;
+  role: string; // e.g., "nurse-on-duty", "family"
 }
 
 export interface DeploymentProfile {
@@ -41,11 +30,11 @@ export interface DeploymentProfile {
   displayName: string;
   location: string;
   contacts: {
-    primary: Contact;
-    escalation: Contact;
+    primary: ProfileContact;
+    escalation: ProfileContact;
   };
   thresholds: {
-    escalation_timeout_seconds: number;
+    cooldown_seconds: number;
     fall_confirmation_seconds: number;
   };
 }
