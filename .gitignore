@@ -4,3 +4,8 @@ __pycache__/
 *.jpeg
 *.png
 .env.local
+/web_app/carewatch/node_modules
+node_modules/
+/web_app/carewatch/.next
+/web_app/carewatch/.env
+
